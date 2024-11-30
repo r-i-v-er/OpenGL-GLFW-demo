@@ -4,6 +4,7 @@
 #include <iostream>
 
 
+#include "shader.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void input_callback(GLFWwindow *window);
@@ -26,7 +27,6 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-
 
     // NDC: Normalised Device coordinates. 3D coordinates that can be converted to a another coordinate system.
 
@@ -64,6 +64,13 @@ int main()
     } 
 
 
+        // shader paths
+    const char* vShaderPath = "/shader/square.vs";
+    const char* fShaderPath = "/shader/square.fs";
+
+    shader squareShader(fShaderPath, vShaderPath);
+
+
 
     // Vertex attribute object (VAO):
     // This 
@@ -96,37 +103,6 @@ int main()
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW); 
-    
-
-    // creating empty shader object (in this case its a empty vertex shader) 
-    unsigned int vertex_shader = glCreateShader(GL_VERTEX_SHADER);   
-    // attach shader to the empty shader object
-    glShaderSource(vertex_shader, 1, &vert_source, NULL);
-    glCompileShader(vertex_shader);
-
-    // fragment shader
-
-    unsigned int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    glShaderSource(fragment_shader, 1, &frag_source, NULL);
-    glCompileShader(fragment_shader);
-
-
-
-    // creating a program
-    unsigned int shader_program = glCreateProgram();
-
-    // attaching shaders 
-    glAttachShader(shader_program, vertex_shader);
-    glAttachShader(shader_program, fragment_shader);
-
-    // linking shaders to program
-    glLinkProgram(shader_program);
-
-    // deleting shaders as they are linked to the program and are no longer needed (optional)
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
-
 
     // linking vertex attributes
     // OpenGL needs information on how to interpret the data so it needs the infomation about the vertex attributes.
@@ -147,8 +123,7 @@ int main()
 
         glClearColor(0.1f, 0.4f, 0.6f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
-        glUseProgram(shader_program);
+        squareShader.useShader();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

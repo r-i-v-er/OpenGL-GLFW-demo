@@ -12,8 +12,7 @@
  class shader
     {
     public:
-
-        unsigned int programID;
+        unsigned int shader_program;
 
         shader(const char* fragmentPath, const char* vertexPath)
         {
@@ -31,11 +30,13 @@
                 vShaderStream >> vShaderFile.rdbuf();
                 fShaderStream >> fShaderFile.rdbuf();
 
+                vShaderFile.close();
+                fShaderFile.close();
+
+
                 vertexCode = vShaderStream.str();
                 fragmentCode = fShaderStream.str();
 
-                vShaderFile.close();
-                fShaderFile.close();
 
             }
             catch (std::ifstream::failure e)
@@ -47,18 +48,72 @@
             const char* vShaderCode = vertexCode.c_str();
             const char* fShaderCode = fragmentCode.c_str();
 
+            unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
+            unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
+            int success;
+            char infoLog[512];
+
+            // vertex shader 
+            glShaderSource(vertex, 1, &vShaderCode, nullptr);
+            glCompileShader(vertex);
+
+            glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+                std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+            };
+  
+
+            // fragment shader
+            glShaderSource(fragment, 1, &fShaderCode, nullptr);
+            glCompileShader(fragment);
+
+            glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+            if (!success)
+            {
+                glGetShaderInfoLog(vertex, 512, NULL, infoLog);
+                std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+            };
+  
+
+                // creating a program
+            shader_program = glCreateProgram();
+
+            // attaching shaders 
+            glAttachShader(shader_program, vertex);
+            glAttachShader(shader_program, fragment);
+
+            // linking shaders to program
+            glLinkProgram(shader_program);
+
+            // deleting shaders as they are linked to the program and are no longer needed (optional)
+            glDeleteShader(vertex);
+            glDeleteShader(fragment);
 
         };
 
         void useShader() 
         {
-            
+            glUseProgram(shader_program);
         }
 
 
+        // Uniform Setters
+        void setBool(const std::string &name, bool value) const
+        {         
+            glUniform1i(glGetUniformLocation(shader_program, name.c_str()), (int)value); 
+        }
 
+        void setInt(const std::string &name, int value) const
+        { 
+            glUniform1i(glGetUniformLocation(shader_program, name.c_str()), value); 
+        }
 
-        ~shader();
+        void setFloat(const std::string &name, float value) const
+        { 
+            glUniform1f(glGetUniformLocation(shader_program, name.c_str()), value); 
+        } 
     };
 
 #endif
