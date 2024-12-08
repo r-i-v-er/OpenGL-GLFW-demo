@@ -14,7 +14,7 @@
     public:
         unsigned int shader_program;
 
-        shader(const char* fragmentPath, const char* vertexPath)
+        shader(const char* fragmentPath, const char* vertexPath, const char* geometryPath = nullptr)
         {
             std::string vertexCode; 
             std::string fragmentCode;
@@ -51,7 +51,7 @@
             unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
             unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
             int success;
-            char infoLog[512];
+            char infoLogv[512];
 
             // vertex shader 
             glShaderSource(vertex, 1, &vShaderCode, nullptr);
@@ -60,20 +60,22 @@
             glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
             if (!success)
             {
-                glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-                std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+                glGetShaderInfoLog(vertex, 512, NULL, infoLogv);
+                std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLogv << std::endl;
             };
   
+
+            char infologf[512];
 
             // fragment shader
             glShaderSource(fragment, 1, &fShaderCode, nullptr);
             glCompileShader(fragment);
 
-            glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
+            glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
             if (!success)
             {
-                glGetShaderInfoLog(vertex, 512, NULL, infoLog);
-                std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+                glGetShaderInfoLog(fragment, 512, NULL, infoLogf);
+                std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLogf << std::endl;
             };
   
 
